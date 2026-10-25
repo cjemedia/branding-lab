@@ -9,8 +9,9 @@ Student portal for The Branding Lab by CJE Media. Lives at lab.ciarajevans.com.
 ## Database files (run in order, in the Hub's Supabase SQL Editor)
 
 1. `supabase/migrations/0001_lab_schema.sql`: tables, access rules, security
-2. `supabase/migrations/0002_lab_seed.sql`: the seven experiments, starting copy, AI instructions
-3. `supabase/setup/make-admins.sql`: makes existing Hub accounts Lab admins
+2. `supabase/migrations/0002_lab_seed.sql`: the seven experiments, starting copy, shared AI instructions
+3. `supabase/migrations/0003_room_test_instructions.sql`: Experiment 001 result instructions
+4. `supabase/setup/make-admins.sql`: makes existing Hub accounts Lab admins
 
 Then add `lab` to Project Settings > Data API > Exposed schemas.
 

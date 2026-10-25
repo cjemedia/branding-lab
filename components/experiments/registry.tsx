@@ -1,10 +1,14 @@
 // Maps each experiment slug to its interactive tool.
-// Tools are added here as they are built (Experiment 001 first).
-import type { ComponentType } from 'react'
+// Tools are added here as they are built.
+import RoomTest from './room-test/RoomTest'
 
 export interface ExperimentToolProps {
   experimentId: string
   userId: string
 }
 
-export const experimentTools: Record<string, ComponentType<ExperimentToolProps>> = {}
+type ExperimentTool = (props: ExperimentToolProps) => Promise<JSX.Element> | JSX.Element
+
+export const experimentTools: Record<string, ExperimentTool> = {
+  'the-room-test': RoomTest,
+}

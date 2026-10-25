@@ -50,7 +50,7 @@ export default async function ExperimentPage({ params }: { params: { number: str
     return (
       <div className="space-y-8">
         <BackLink />
-        {Tool ? <Tool experimentId={experiment.id} userId={session.userId} /> : <>{header}<Notice text={content['locked.not_open']} /></>}
+        {Tool ? await Tool({ experimentId: experiment.id, userId: session.userId }) : <>{header}<Notice text={content['locked.not_open']} /></>}
       </div>
     )
   }
