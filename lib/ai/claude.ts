@@ -22,11 +22,13 @@ export async function generateStructured(req: StructuredRequest): Promise<Struct
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('AI is not configured (ANTHROPIC_API_KEY).')
 
-  const client = new Anthropic({ apiKey, timeout: 120_000, maxRetries: 1 })
+  // Timeout stays under the route's 120 second limit so a slow call returns a
+  // clean error instead of being cut off mid-request.
+  const client = new Anthropic({ apiKey, timeout: 110_000, maxRetries: 1 })
 
   const response = await client.messages.create({
     model: RESULT_MODEL,
-    max_tokens: req.maxTokens ?? 4000,
+    max_tokens: req.maxTokens ?? 8000,
     system: [
       {
         type: 'text',

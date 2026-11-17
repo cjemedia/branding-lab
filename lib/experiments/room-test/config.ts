@@ -185,6 +185,8 @@ export const COPY = {
   reality: {
     headline: 'Okay, but can your brand back it up?',
     subheadline: "A beautiful brand means nothing if the experience doesn't match.",
+    // Approved by Ciara J. on Oct 24, 2026
+    business: 'What does your business do?',
     q1: 'Someone discovers your brand for the first time. What do you want them to understand within 10 seconds?',
     q2: "What's currently the hardest part of showing up as your brand?",
     q3: 'Finish this sentence: I want people to choose my brand because...',

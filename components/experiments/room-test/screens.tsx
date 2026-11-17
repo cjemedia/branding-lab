@@ -264,6 +264,7 @@ export function RealityScreen({ answers, update }: ScreenProps) {
   return (
     <div className="space-y-10">
       <ScreenHeader headline={COPY.reality.headline} subheadline={COPY.reality.subheadline} />
+      <TextArea label={COPY.reality.business} value={answers.business} onChange={(v) => update({ business: v })} rows={2} />
       <div>
         <Question hint="Choose two.">{COPY.reality.q1}</Question>
         <div className="mt-4 flex flex-wrap gap-3">

@@ -43,6 +43,7 @@ function stepErrors(step: number, a: RoomTestAnswers): string[] {
       if (!a.neverSay.trim()) return ["Share the one thing you never want said about your brand."]
       return []
     case 5:
+      if (!a.business.trim()) return ['Tell us what your business does.']
       if (a.tenSeconds.length < 2) return ['Choose two things people should understand in 10 seconds.']
       if (!a.challenge) return ['Choose the hardest part of showing up as your brand.']
       if (!a.chooseBecause.trim()) return ['Finish the sentence about why people should choose your brand.']

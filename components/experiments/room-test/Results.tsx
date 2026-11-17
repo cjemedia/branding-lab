@@ -118,6 +118,11 @@ export default function Results(props: Props) {
 
       <Section number="01" title="Your brand in one sentence">
         <EditableText editing={editing} value={result.brand_sentence} onChange={(v) => set('brand_sentence', v)} large />
+        {result.discovery || editing ? (
+          <Labeled label="Discovery">
+            <EditableText editing={editing} value={result.discovery} onChange={(v) => set('discovery', v)} />
+          </Labeled>
+        ) : null}
       </Section>
 
       <Section number="02" title="Your brand's personality mix">
@@ -137,6 +142,7 @@ export default function Results(props: Props) {
         <Labeled label="Desired customer experience">
           <EditableText editing={editing} value={result.personality_mix.customer_experience} onChange={(v) => set('personality_mix', { ...result.personality_mix, customer_experience: v })} />
         </Labeled>
+        <TryThis editing={editing} value={result.personality_mix.try_this} onChange={(v) => set('personality_mix', { ...result.personality_mix, try_this: v })} />
       </Section>
 
       <Section number="03" title="How your brand speaks">
@@ -155,6 +161,7 @@ export default function Results(props: Props) {
         <Labeled label="Habits to avoid">
           <EditableList editing={editing} items={result.how_it_speaks.habits_to_avoid} onChange={(v) => set('how_it_speaks', { ...result.how_it_speaks, habits_to_avoid: v })} />
         </Labeled>
+        <TryThis editing={editing} value={result.how_it_speaks.try_this} onChange={(v) => set('how_it_speaks', { ...result.how_it_speaks, try_this: v })} />
       </Section>
 
       <Section number="04" title="What makes your brand memorable">
@@ -162,6 +169,7 @@ export default function Results(props: Props) {
           <EditableList editing={editing} items={result.memorable.common_qualities} onChange={(v) => set('memorable', { ...result.memorable, common_qualities: v })} pills />
         </Labeled>
         <EditableText editing={editing} value={result.memorable.explanation} onChange={(v) => set('memorable', { ...result.memorable, explanation: v })} />
+        <TryThis editing={editing} value={result.memorable.try_this} onChange={(v) => set('memorable', { ...result.memorable, try_this: v })} />
       </Section>
 
       <Section number="05" title="Your brand's reality check">
@@ -200,6 +208,7 @@ export default function Results(props: Props) {
             <EditableText editing={editing} value={result.creative_direction[key]} onChange={(v) => set('creative_direction', { ...result.creative_direction, [key]: v })} />
           </Labeled>
         ))}
+        <TryThis editing={editing} value={result.creative_direction.try_this} onChange={(v) => set('creative_direction', { ...result.creative_direction, try_this: v })} />
       </Section>
 
       <Section number="07" title="Your next move">
@@ -251,6 +260,20 @@ function Labeled({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
+// A creative idea at the end of a section. Results saved before version 2 of
+// the AI instructions have no idea here, so nothing renders for them.
+function TryThis({ editing, value, onChange }: { editing: boolean; value: string; onChange: (v: string) => void }) {
+  if (!value && !editing) return null
+  return (
+    <div className="rounded-2xl bg-cream p-5">
+      <p className="text-[11px] font-semibold tracking-label text-tiffany-dark">TRY THIS</p>
+      <div className="mt-2">
+        <EditableText editing={editing} value={value} onChange={onChange} />
+      </div>
+    </div>
+  )
+}
+
 function Notice({ children, tone = 'info' }: { children: React.ReactNode; tone?: 'info' | 'error' }) {
   return (
     <p role={tone === 'error' ? 'alert' : 'status'} className={`rounded-xl px-4 py-3 text-sm font-medium ${tone === 'error' ? 'bg-red-50 text-red-800' : 'bg-tiffany-soft'}`}>
@@ -273,7 +296,7 @@ function EditableText({
   bold?: boolean
 }) {
   if (editing) {
-    return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={large ? 3 : 2} maxLength={900} className="input resize-y" />
+    return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={large ? 3 : 4} maxLength={2500} className="input resize-y" />
   }
   return <p className={`${large ? 'text-2xl font-semibold leading-snug' : ''} ${bold ? 'font-semibold' : ''}`}>{value}</p>
 }

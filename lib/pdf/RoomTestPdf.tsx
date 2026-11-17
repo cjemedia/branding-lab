@@ -79,6 +79,16 @@ function Bullets({ items, quoted, numbered }: { items: string[]; quoted?: boolea
   )
 }
 
+function TryThis({ text }: { text: string }) {
+  if (!text) return null
+  return (
+    <View style={[s.card, { marginTop: 8 }]} wrap={false}>
+      <Text style={[s.label, { color: TIFFANY_DARK, marginTop: 0 }]}>TRY THIS</Text>
+      <Text>{text}</Text>
+    </View>
+  )
+}
+
 export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestResult; answers: RoomTestAnswers; brandName: string | null }) {
   const primary = PERSONALITIES.find((p) => p.id === answers.primaryPersonality)
   const secondary = PERSONALITIES.find((p) => p.id === answers.secondaryPersonality)
@@ -96,6 +106,13 @@ export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestRe
           <Text style={s.sentence}>{result.brand_sentence}</Text>
         </View>
 
+        {result.discovery ? (
+          <View style={s.section} wrap={false}>
+            <Text style={[s.label, { marginTop: 0 }]}>DISCOVERY</Text>
+            <Text style={s.body}>{result.discovery}</Text>
+          </View>
+        ) : null}
+
         <Section n="01" title="Your brand's personality mix">
           {primary ? <Field label="Primary personality">{primary.name}</Field> : null}
           {secondary ? <Field label="Secondary personality">{secondary.name}</Field> : null}
@@ -110,6 +127,7 @@ export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestRe
           </View>
           <Field label="Desired first impression">{result.personality_mix.first_impression}</Field>
           <Field label="Desired customer experience">{result.personality_mix.customer_experience}</Field>
+          <TryThis text={result.personality_mix.try_this} />
         </Section>
 
         <Section n="02" title="How your brand speaks">
@@ -120,6 +138,7 @@ export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestRe
           <Bullets items={result.how_it_speaks.example_phrases} quoted />
           <Text style={s.label}>HABITS TO AVOID</Text>
           <Bullets items={result.how_it_speaks.habits_to_avoid} />
+          <TryThis text={result.how_it_speaks.try_this} />
         </Section>
 
         <Section n="03" title="What makes your brand memorable">
@@ -129,6 +148,7 @@ export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestRe
             ))}
           </View>
           <Text style={[s.body, { marginTop: 4 }]}>{result.memorable.explanation}</Text>
+          <TryThis text={result.memorable.try_this} />
         </Section>
 
         <Section n="04" title="Your brand's reality check">
@@ -148,6 +168,7 @@ export function RoomTestPdf({ result, answers, brandName }: { result: RoomTestRe
           <Field label="Typography direction">{result.creative_direction.typography_direction}</Field>
           <Field label="Color characteristics">{result.creative_direction.color_characteristics}</Field>
           <Field label="Overall brand experience">{result.creative_direction.brand_experience}</Field>
+          <TryThis text={result.creative_direction.try_this} />
         </Section>
 
         <Section n="06" title="Your next move">

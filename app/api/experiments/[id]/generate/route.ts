@@ -75,48 +75,57 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const userContent = formatRoomTestAnswers(answers.data)
 
-  // One retry if the output does not match the expected shape
+  // Retry once only when the output does not match the expected shape. A cut-off,
+  // refusal, or API error is not retried here: the SDK already retries network
+  // errors, and a second full generation doubles the wait for the same outcome.
+  const started = Date.now()
+  let failure = 'Unknown error'
   for (let attempt = 1; attempt <= 2; attempt++) {
+    let response
     try {
-      const response = await generateStructured({ instructions, userContent, schema: resultJsonSchema })
-      const shaped = normalize(response.data)
-      const parsed = resultSchema.safeParse(removeDashes(shaped))
-      if (!parsed.success) {
-        if (attempt === 2) throw new Error('The result did not come back in the expected format.')
-        continue
-      }
-
-      const flags = findAvoidedPhrases(parsed.data)
-      await supabase
-        .from('ai_generations')
-        .update({
-          status: 'succeeded',
-          output: { result: parsed.data, flags },
-          input_tokens: response.inputTokens,
-          output_tokens: response.outputTokens,
-        })
-        .eq('id', generation?.id)
-
-      await supabase
-        .from('experiment_progress')
-        .update({ draft_result: parsed.data })
-        .eq('user_id', session.userId)
-        .eq('experiment_id', experiment.id)
-
-      return NextResponse.json({ result: parsed.data })
+      response = await generateStructured({ instructions, userContent, schema: resultJsonSchema })
     } catch (error) {
-      if (attempt === 2) {
-        const message = error instanceof Error ? error.message : 'Unknown error'
-        await supabase.from('ai_generations').update({ status: 'failed', error: message }).eq('id', generation?.id)
-        return NextResponse.json(
-          { error: 'Something went wrong while building your results. Your answers are saved, so you can try again.' },
-          { status: 502 }
-        )
-      }
+      failure = error instanceof Error ? error.message : 'Unknown error'
+      break
     }
+
+    const shaped = normalize(response.data)
+    const parsed = resultSchema.safeParse(removeDashes(shaped))
+    if (!parsed.success) {
+      failure = `The result did not come back in the expected format. ${parsed.error.issues
+        .slice(0, 3)
+        .map((i) => `${i.path.join('.')}: ${i.message}`)
+        .join('; ')}`
+      continue
+    }
+
+    const flags = findAvoidedPhrases(parsed.data)
+    console.info(`room-test generation succeeded in ${Date.now() - started}ms (attempt ${attempt}, ${response.outputTokens} output tokens)`)
+    await supabase
+      .from('ai_generations')
+      .update({
+        status: 'succeeded',
+        output: { result: parsed.data, flags },
+        input_tokens: response.inputTokens,
+        output_tokens: response.outputTokens,
+      })
+      .eq('id', generation?.id)
+
+    await supabase
+      .from('experiment_progress')
+      .update({ draft_result: parsed.data })
+      .eq('user_id', session.userId)
+      .eq('experiment_id', experiment.id)
+
+    return NextResponse.json({ result: parsed.data })
   }
 
-  return NextResponse.json({ error: 'Something went wrong.' }, { status: 502 })
+  console.error(`room-test generation failed after ${Date.now() - started}ms: ${failure}`)
+  await supabase.from('ai_generations').update({ status: 'failed', error: failure }).eq('id', generation?.id)
+  return NextResponse.json(
+    { error: 'Something went wrong while building your results. Your answers are saved, so you can try again.' },
+    { status: 502 }
+  )
 }
 
 // Trims arrays that came back longer than the snapshot allows
